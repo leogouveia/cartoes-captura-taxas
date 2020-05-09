@@ -115,4 +115,4 @@ dist
 .yarn/build-state.yml
 .pnp.*
 
-arquivos/
+arquivos/*

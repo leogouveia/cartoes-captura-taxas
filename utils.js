@@ -1,4 +1,7 @@
 "use strict";
+const path = require("path");
+const fs = require("fs");
+const strftime = require("strftime");
 
 function pad(value = "", width, n = "0") {
   value = value ? `${value}` : "";
@@ -7,15 +10,23 @@ function pad(value = "", width, n = "0") {
 }
 
 function getDataHoraAgora() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  const h = d.getHours();
-  const min = pad(d.getMinutes(), 2);
-  const ss = pad(d.getSeconds(), 2);
-  const ms = d.getMilliseconds();
-  return `${y}${m}${day}${h}${min}${ss}${ms}`;
+  return strftime("%Y%m%d%H%M%S%L");
 }
 
-module.exports = { getDataHoraAgora };
+/**
+ * Salva arquivos com nome informado e sufixo com data/hora atual
+ * @param {string} nome
+ * @param {array} dados
+ */
+function salvaArquivo(nome, dados) {
+  nome = `${nome}_${getDataHoraAgora()}.csv`;
+  nome = path.resolve(__dirname, "./arquivos", nome);
+  return new Promise((resolve, reject) => {
+    fs.writeFile(nome, dados, (err) => {
+      if (err) return reject(err);
+      return resolve(`Arquivo ${nome} gerado!`);
+    });
+  });
+}
+
+module.exports = { getDataHoraAgora, salvaArquivo };
