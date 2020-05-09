@@ -1,0 +1,16 @@
+{
+  "name": "cartoes-captura-taxas",
+  "version": "0.1.0",
+  "description": "Fetch currency exchange charged by brazilian card issuers using OpenData (DadosAbertos)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Leonardo de Albuquerque Gouveia <leonardo.gouveia@caixa.gov.br>",
+  "license": "MIT",
+  "dependencies": {
+    "convert-array-to-csv": "^1.0.12",
+    "node-fetch": "^2.6.0"
+  }
+}
