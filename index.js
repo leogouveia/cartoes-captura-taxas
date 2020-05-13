@@ -1,29 +1,28 @@
 "use strict";
 
-const fetch = require("node-fetch");
-const https = require("https");
 const { convertArrayToCSV } = require("convert-array-to-csv");
-const { getDataHoraAgora, salvaArquivo } = require("./utils");
+const { salvaArquivo, fetcher } = require("./utils");
 
 async function main() {
   try {
+    const args = process.argv.slice(2).map(arg => arg.replace("--", ""));
+    const arg1 = args[0] || "ultimo"
+    console.log(arg1)
     console.log(". capturando catalogo Emissores");
-    const catalogo = await fetchCatalogoEmissores("todos");
+    const catalogo = await fetchCatalogoEmissores(arg1);
     salvaArquivo("catalogo_bancos", convertArrayToCSV(catalogo.value));
     console.log(".. catalogo Emissores capturados");
 
     console.log(". capturando taxas por emissor");
     const emissores = await Promise.all(
-      catalogo.value.map((banco) => {
-        console.log(".. capturando emissor: " + banco.NomeInstituicao);
-        return fetchTaxaBanco(banco);
-      })
+      catalogo.value.map((emissor) => fetchTaxaEmissor(emissor))
     );
 
     console.log("Formata dados retornados pelos Emissores");
     const dados = formataDadosDosEmissores(emissores);
     const csv = convertArrayToCSV(dados);
     await salvaArquivo("taxas_bancos", csv);
+    await salvaArquivo("taxas_bancos", csv, false);
     console.log("Arquivo taxas salvo");
 
     // salva log de erros
@@ -41,7 +40,7 @@ async function main() {
  * Captura taxa via serviço do banco
  * @param {object<{url:string, NomeInstituicao: string, CnpjInstituicao: string}>} dados
  */
-async function fetchTaxaBanco(emissor) {
+async function fetchTaxaEmissor(emissor) {
   const retorno = {
     nomeBanco: emissor.NomeInstituicao,
     cnpjBanco: emissor.CnpjInstituicao,
@@ -50,9 +49,11 @@ async function fetchTaxaBanco(emissor) {
   try {
     const dados = await fetcher(emissor.URLDados);
     retorno.dados = dados;
+    console.log("fetched ", emissor.NomeInstituicao)
     return retorno;
   } catch (error) {
     retorno.error = error.message;
+    console.log("error ", emissor.NomeInstituicao)
     return retorno;
   }
 }
@@ -100,28 +101,6 @@ function formataDadosDosEmissores(emissores) {
   }
 
   return retorno;
-}
-
-/**
- * Monta objeto fetch com as configurações necessárias.
- * Verifica se a url é https ou http só utilizando o Agent se for https.
- * @param {string} url
- */
-function fetcher(url) {
-  const headers = {
-    Accept: "application/json",
-    "cache-control": "no-cache",
-  };
-
-  /** O certificado utilizado pela Caixa apresenta erro, essa configuração bypassa o certificado invalido */
-  const agent = new https.Agent({
-    rejectUnauthorized: false,
-  });
-  const options = { headers, ...(url.slice(0, 5) === "https" && { agent }) };
-  return fetch(url, options).then((res) => {
-    if (!res.ok) throw Error(`Response not ok: ${res.status}`);
-    return res.json();
-  });
 }
 
 main();
