@@ -10,7 +10,10 @@
   "author": "Leonardo de Albuquerque Gouveia <leonardo.gouveia@caixa.gov.br>",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.19.2",
+    "axios-https-proxy-fix": "^0.17.1",
     "convert-array-to-csv": "^1.0.12",
+    "https-proxy-agent": "^2.2.4",
     "node-fetch": "^2.6.0",
     "strftime": "^0.10.0"
   },

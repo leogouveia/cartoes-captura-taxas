@@ -1,7 +1,8 @@
 "use strict";
 const path = require("path");
 const fs = require("fs");
-const fetch = require("node-fetch");
+const Axios = require('axios-https-proxy-fix');
+const HttpsProxyAgent = require("https-proxy-agent");
 const https = require("https");
 const http = require("http");
 const { URL } = require("url");
@@ -46,17 +47,28 @@ function fetcher(urlString) {
   };
 
   /** O certificado utilizado pela Caixa apresenta erro, essa configuração bypassa o certificado invalido */
-  const httpsAgent = new https.Agent({
-    rejectUnauthorized: false,
-  });
+  //  const httpsAgent = new https.Agent({
+  //   rejectUnauthorized: false,
+  //  });
+  // const httpsAgent = new HttpsProxyAgent({host: "localhost", port: "3128", rejectUnauthorized: false})
   const httpAgent = new http.Agent();
-  const agent = url.protocol === "https:" ? httpsAgent : httpAgent;
-  const options = { headers, agent, timeout: 30 * 1000 };
 
-  return fetch(url, options).then((res) => {
-    if (!res.ok) throw Error(`Response not ok: ${res.status}`);
-    return res.json();
-  });
+  //const agent = url.protocol === "https:" ? httpsAgent : httpAgent;
+  //const options = { headers, agent, timeout: 30 * 1000 };
+
+  const axios = Axios.create({
+    proxy: {
+      host: "localhost",
+      port: "3128",
+      protocol: 'http',
+      rejectUnauthorized: false,
+    },    
+  })
+  
+  return axios.get(urlString).then((res) => {
+    if (res.statusText !== "OK") throw Error(`Response not ok: ${res.statusText}`);
+    return res.data;
+  })
 }
 
 
