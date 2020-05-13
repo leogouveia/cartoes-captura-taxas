@@ -51,7 +51,7 @@ function fetcher(urlString) {
   });
   const httpAgent = new http.Agent();
   const agent = url.protocol === "https:" ? httpsAgent : httpAgent;
-  const options = { headers, agent };
+  const options = { headers, agent, timeout: 30 * 1000 };
 
   return fetch(url, options).then((res) => {
     if (!res.ok) throw Error(`Response not ok: ${res.status}`);
