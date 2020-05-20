@@ -31,14 +31,17 @@ async function main() {
       convertArrayToCSV(emissores.filter((emissor) => emissor.error))
     );
     console.log("Fim!");
+    process.exit(1);
   } catch (error) {
     console.log("main()", error);
+    process.exit(0);
   }
 }
 
 /**
  * Captura taxa via serviço do banco
  * @param {object<{url:string, NomeInstituicao: string, CnpjInstituicao: string}>} dados
+ * @returns {Promise<object>}
  */
 async function fetchTaxaEmissor(emissor) {
   const retorno = {
@@ -60,6 +63,7 @@ async function fetchTaxaEmissor(emissor) {
 
 /**
  * Captura catalog de serviços
+ * 
  */
 function fetchCatalogoEmissores(tipo = "ultimo") {
   const recurso = tipo === "ultimo" ? "/itens/ultimo" : "/itens";

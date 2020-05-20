@@ -3,11 +3,12 @@ const path = require("path");
 const fs = require("fs");
 const Axios = require('axios-https-proxy-fix');
 const HttpsProxyAgent = require("https-proxy-agent");
-const https = require("https");
-const http = require("http");
-const { URL } = require("url");
 const strftime = require("strftime");
 
+/**
+ * Formata data hora para arquivo
+ * @returns {string}
+ */
 function getDataHoraAgora() {
   return strftime("%Y%m%d%H%M%S%L");
 }
@@ -16,6 +17,7 @@ function getDataHoraAgora() {
  * Salva arquivos com nome informado e sufixo com data/hora atual
  * @param {string} nome
  * @param {array} dados
+ * @returns {Promise}
  */
 function salvaArquivo(nome, dados, timestamps = true) {
   if (timestamps) {
@@ -37,24 +39,11 @@ function salvaArquivo(nome, dados, timestamps = true) {
  * Monta objeto fetch com as configurações necessárias.
  * Verifica se a url é https ou http só utilizando o Agent se for https.
  * @param {string} url
+ * @returns {Primise}
  */
-function fetcher(urlString) {
-  const url = new URL(urlString);
-
-  const headers = {
-    Accept: "application/json",
-    "cache-control": "no-cache",
-  };
-
+async function fetcher(urlString) {
   /** O certificado utilizado pela Caixa apresenta erro, essa configuração bypassa o certificado invalido */
-  //  const httpsAgent = new https.Agent({
-  //   rejectUnauthorized: false,
-  //  });
   const httpsAgent = new HttpsProxyAgent({host: "localhost", port: "3128", rejectUnauthorized: false})
-  const httpAgent = new http.Agent();
-
-  //const agent = url.protocol === "https:" ? httpsAgent : httpAgent;
-  //const options = { headers, agent, timeout: 30 * 1000 };
 
   const axios = Axios.create({
     proxy: {
@@ -67,10 +56,13 @@ function fetcher(urlString) {
     timeout: 1 * 60 * 1000 //espera 1minuto
   })
   
-  return axios.get(urlString).then((res) => {
+  try {
+    const res = await axios.get(urlString);
     if (res.statusText !== "OK") throw Error(`Response not ok: ${res.statusText}`);
     return res.data;
-  })
+  } catch (error) {
+    throw error;
+  }
 }
 
 
