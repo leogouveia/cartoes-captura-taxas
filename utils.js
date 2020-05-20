@@ -50,7 +50,7 @@ function fetcher(urlString) {
   //  const httpsAgent = new https.Agent({
   //   rejectUnauthorized: false,
   //  });
-  // const httpsAgent = new HttpsProxyAgent({host: "localhost", port: "3128", rejectUnauthorized: false})
+  const httpsAgent = new HttpsProxyAgent({host: "localhost", port: "3128", rejectUnauthorized: false})
   const httpAgent = new http.Agent();
 
   //const agent = url.protocol === "https:" ? httpsAgent : httpAgent;
@@ -63,6 +63,8 @@ function fetcher(urlString) {
       protocol: 'http',
       rejectUnauthorized: false,
     },    
+    httpsAgent,
+    timeout: 1 * 60 * 1000 //espera 1minuto
   })
   
   return axios.get(urlString).then((res) => {
