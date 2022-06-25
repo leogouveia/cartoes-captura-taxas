@@ -11,7 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "convert-array-to-csv": "^1.0.12",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "strftime": "^0.10.0"
   },
   "engines": {
